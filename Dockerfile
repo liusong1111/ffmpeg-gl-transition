@@ -18,21 +18,29 @@ RUN sed -E -e 's/\s+main\s?$/ main contrib non-free /' /etc/apt/sources.list >/e
 RUN apt-get -y update -y && apt-get -y upgrade
 
 # need git
-RUN apt-get -y install git
-
-# get ffmpeg sources
-RUN git clone http://source.ffmpeg.org/git/ffmpeg.git ffmpeg
-
-# get ffmpeg-gl-transition modifications
-# this pulls from the original master for standalone use
-# but you could modify to copy from your clone/repository
-RUN git clone https://github.com/transitive-bullshit/ffmpeg-gl-transition.git
+RUN apt-get -y install git vim wget
 
 # dependencies needed for ffmpeg compile
 RUN apt-get -y install gcc g++ make xorg-dev pkg-config \
                        libglew2.0 libglew-dev libglfw3-dev \
                        nasm yasm libx264-dev libx265-dev libvpx-dev libglu1-mesa-dev \
                        libmp3lame-dev libopus-dev libfdk-aac-dev
+
+# needed for running it
+RUN apt-get -y install xvfb
+
+# get ffmpeg-gl-transition modifications
+# this pulls from the original master for standalone use
+# but you could modify to copy from your clone/repository
+RUN git clone https://github.com/liusong1111/ffmpeg-gl-transition.git
+
+# get ffmpeg sources
+#RUN git clone http://source.ffmpeg.org/git/ffmpeg.git ffmpeg
+RUN wget http://ffmpeg.org/releases/ffmpeg-4.4.tar.gz
+RUN tar xfz ffmpeg-4.4.tar.gz
+RUN mv ffmpeg-4.4 ffmpeg
+
+
 
 # disable EGL
 RUN grep -v "define GL_TRANSITION_USING_EGL" /build/ffmpeg-gl-transition/vf_gltransition.c > ffmpeg/libavfilter/vf_gltransition.c
@@ -55,8 +63,6 @@ RUN (cd ffmpeg; ./configure --enable-libx264 --enable-libx265 --enable-libvpx  -
 RUN (cd ffmpeg; make -j)
 RUN (cd ffmpeg; make install)
 
-# needed for running it
-RUN apt-get -y install xvfb
 
 # try the demo
 RUN (cd ffmpeg-gl-transition; ln -s /usr/local/bin/ffmpeg .)
