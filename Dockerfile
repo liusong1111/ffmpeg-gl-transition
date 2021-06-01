@@ -25,7 +25,8 @@ RUN apt-get -y install gcc g++ make xorg-dev pkg-config \
                        libglew2.0 libglew-dev libglfw3-dev \
                        nasm yasm libx264-dev libx265-dev libvpx-dev libglu1-mesa-dev \
                        libmp3lame-dev libopus-dev libfdk-aac-dev \
-                       build-essential openssl libssl-dev
+                       build-essential openssl libssl-dev \
+                       libass-dev
 
 # needed for running it
 RUN apt-get -y install xvfb
@@ -58,7 +59,7 @@ RUN (cd ffmpeg; git apply /build/ffmpeg-gl-transition/ffmpeg.diff)
 # to do see see configure --help of ffmpeg   add the flag below and any necessary library install above
 
 # configure/compile/install ffmpeg
-RUN (cd ffmpeg; ./configure --enable-openssl --enable-libx264 --enable-libx265 --enable-libvpx  --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-nonfree --enable-gpl --enable-opengl --enable-filter=gltransition --extra-libs='-lGLEW -lglfw -ldl' )
+RUN (cd ffmpeg; ./configure --enable-openssl --enable-libass --enable-libx264 --enable-libx265 --enable-libvpx  --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-nonfree --enable-gpl --enable-opengl --enable-filter=gltransition --extra-libs='-lGLEW -lglfw -ldl' )
 # the -j speeds up compilation, but if your container host is limited on resources, you may need to
 # remove it to force a non-parallel build to avoid memory usage issues
 RUN (cd ffmpeg; make -j)
